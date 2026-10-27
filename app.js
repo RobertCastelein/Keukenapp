@@ -206,13 +206,156 @@ function meld(tekst) {
   receptMelding.hidden = !tekst;
 }
 
+// ---------- Ordenen: favorieten en labels ----------
+
+// Labels die automatisch herkend worden aan de titel en de ingrediënten.
+// "alleenTitel": alleen naar de naam van het recept kijken.
+const LABELS = [
+  { id: 'pasta', naam: 'Pasta', woorden: ['pasta', 'spaghetti', 'penne', 'macaroni', 'lasagne', 'lasagna', 'tagliatelle', 'fusilli', 'gnocchi', 'orzo', 'ravioli', 'tortellini', 'linguine', 'farfalle', 'rigatoni', 'paccheri', 'conchiglie', 'pappardelle'] },
+  { id: 'rijst', naam: 'Rijst', woorden: ['rijst', 'risotto', 'nasi', 'paella', 'basmati', 'jasmijnrijst', 'rice'] },
+  { id: 'noedels', naam: 'Noedels', woorden: ['noedel', 'noodle', 'ramen', 'mie', 'udon', 'soba', 'pad thai'] },
+  { id: 'vega', naam: 'Vega', woorden: ['vega', 'vegetarisch', 'vegan', 'veggie', 'plantaardig'] },
+  { id: 'vis', naam: 'Vis', woorden: ['vis', 'zalm', 'tonijn', 'kabeljauw', 'garnaal', 'garnalen', 'scampi', 'mosselen', 'pangasius', 'makreel', 'forel', 'koolvis', 'tilapia', 'ansjovis', 'inktvis', 'salmon', 'tuna', 'shrimp', 'prawn', 'fish', 'cod'] },
+  { id: 'kip', naam: 'Kip', woorden: ['kip', 'kippen', 'kipfilet', 'kippendij', 'chicken', 'kalkoen'] },
+  { id: 'vlees', naam: 'Vlees', woorden: ['gehakt', 'rund', 'varkens', 'spek', 'spekjes', 'bacon', 'chorizo', 'ham', 'worst', 'lam', 'lamsvlees', 'biefstuk', 'steak', 'beef', 'pork', 'salami', 'shoarma', 'kalfs', 'pancetta', 'ossenhaas', 'procureur', 'hamburger', 'braadworst'] },
+  { id: 'soep', naam: 'Soep', woorden: ['soep', 'soup', 'bouillon'], alleenTitel: true },
+  { id: 'salade', naam: 'Salade', woorden: ['salade', 'salad', 'bowl'], alleenTitel: true },
+  { id: 'oven', naam: 'Oven', woorden: ['ovenschotel', 'traybake', 'uit de oven', 'gegratineerd', 'gratin', 'ovenschaal', 'plaatgerecht'], alleenTitel: true },
+  { id: 'zoet', naam: 'Zoet', woorden: ['taart', 'cake', 'koek', 'koekjes', 'brownie', 'toetje', 'dessert', 'muffin', 'cheesecake', 'tiramisu', 'pudding', 'cookies'], alleenTitel: true },
+];
+const VLEES_OF_VIS = ['vis', 'kip', 'vlees'];
+
+function bevatWoord(tekst, woord) {
+  // Woord aan het begin van een woord, zodat "kip" ook "kipfilet" vindt maar "ham" niet "champignon"
+  const re = new RegExp('(^|[^a-zà-ÿ])' + woord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  return re.test(tekst);
+}
+
+function herkenLabels(r) {
+  const titel = (r.titel || '').toLowerCase();
+  const alles = [titel, ...(r.ingredienten || []), r.tekst || ''].join('\n').toLowerCase();
+  const gevonden = LABELS
+    .filter((l) => l.woorden.some((w) => (l.alleenTitel ? titel.includes(w) : bevatWoord(alles, w))))
+    .map((l) => l.id);
+  // Vega als er ingrediënten bekend zijn en er geen vlees of vis in zit
+  if ((r.ingredienten || []).length && !gevonden.some((id) => VLEES_OF_VIS.includes(id)) && !gevonden.includes('vega')) {
+    gevonden.push('vega');
+  }
+  return gevonden;
+}
+
+// Zelf gekozen labels gaan voor; anders de automatisch herkende.
+function labelsVan(r) {
+  return Array.isArray(r.labels) ? r.labels : herkenLabels(r);
+}
+
+const filterBalk = document.getElementById('receptFilters');
+const zoekVeld = document.getElementById('receptZoek');
+let actiefFilter = lees('receptFilter') || 'alles';
+let zoekterm = '';
+
+function past(r) {
+  if (actiefFilter === 'favoriet' && !r.favoriet) return false;
+  if (actiefFilter !== 'alles' && actiefFilter !== 'favoriet' && !labelsVan(r).includes(actiefFilter)) return false;
+  if (zoekterm) {
+    const tekst = [r.titel, ...(r.ingredienten || [])].join(' ').toLowerCase();
+    if (!zoekterm.split(/\s+/).every((w) => tekst.includes(w))) return false;
+  }
+  return true;
+}
+
+function toonFilters() {
+  const tellers = new Map();
+  for (const r of recepten) for (const id of labelsVan(r)) tellers.set(id, (tellers.get(id) || 0) + 1);
+  const favorieten = recepten.filter((r) => r.favoriet).length;
+  const keuzes = [{ id: 'alles', naam: 'Alles', aantal: recepten.length }];
+  keuzes.push({ id: 'favoriet', naam: '★ Favorieten', aantal: favorieten });
+  for (const l of LABELS) if (tellers.get(l.id)) keuzes.push({ id: l.id, naam: l.naam, aantal: tellers.get(l.id) });
+  if (!keuzes.some((k) => k.id === actiefFilter)) actiefFilter = 'alles';
+
+  filterBalk.replaceChildren();
+  filterBalk.hidden = recepten.length === 0;
+  zoekVeld.hidden = recepten.length === 0;
+  for (const k of keuzes) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip' + (k.id === actiefFilter ? ' actief' : '');
+    chip.textContent = k.naam + ' ';
+    const n = document.createElement('span');
+    n.className = 'aantal';
+    n.textContent = k.aantal;
+    chip.append(n);
+    chip.addEventListener('click', () => {
+      actiefFilter = k.id;
+      bewaar('receptFilter', actiefFilter);
+      toonRecepten();
+    });
+    filterBalk.append(chip);
+  }
+}
+
+zoekVeld.addEventListener('input', () => {
+  zoekterm = zoekVeld.value.trim().toLowerCase();
+  toonRecepten();
+});
+
+// Wijziging meteen tonen en daarna in je Google Drive bewaren
+async function werkReceptBij(r, wijziging) {
+  const oud = { favoriet: r.favoriet, labels: r.labels };
+  Object.assign(r, wijziging);
+  bewaar('receptenData', JSON.stringify(recepten));
+  toonRecepten();
+  if (openRecept === r) toonOrdening(r);
+  try {
+    await stuurScript({ actie: 'recept-bijwerken', id: r.id, ...wijziging });
+  } catch (e) {
+    Object.assign(r, oud);
+    bewaar('receptenData', JSON.stringify(recepten));
+    toonRecepten();
+    if (openRecept === r) toonOrdening(r);
+    alert('Bewaren lukte niet: ' + e.message);
+  }
+}
+
+const favorietKnop = document.getElementById('rFavoriet');
+const labelKeuze = document.getElementById('rLabels');
+
+function toonOrdening(r) {
+  favorietKnop.textContent = r.favoriet ? '★ Favoriet' : '☆ Favoriet';
+  favorietKnop.classList.toggle('aan', !!r.favoriet);
+  const huidige = labelsVan(r);
+  labelKeuze.replaceChildren();
+  for (const l of LABELS) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip' + (huidige.includes(l.id) ? ' actief' : '');
+    chip.textContent = l.naam;
+    chip.addEventListener('click', () => {
+      const nieuw = huidige.includes(l.id) ? huidige.filter((id) => id !== l.id) : [...huidige, l.id];
+      werkReceptBij(r, { labels: LABELS.map((x) => x.id).filter((id) => nieuw.includes(id)) });
+    });
+    labelKeuze.append(chip);
+  }
+}
+
+favorietKnop.addEventListener('click', () => {
+  if (openRecept) werkReceptBij(openRecept, { favoriet: !openRecept.favoriet });
+});
+
 function toonRecepten() {
+  toonFilters();
   receptLijst.replaceChildren();
   if (recepten.length === 0) {
     receptLijst.innerHTML = '<p class="leeg">Nog geen recepten. Plak hierboven een link van Instagram of een receptsite.</p>';
     return;
   }
-  for (const r of recepten) {
+  const zichtbaar = recepten.filter(past)
+    .sort((a, b) => (actiefFilter === 'alles' ? (b.favoriet ? 1 : 0) - (a.favoriet ? 1 : 0) : 0));
+  if (zichtbaar.length === 0) {
+    receptLijst.innerHTML = '<p class="leeg">Geen recepten gevonden.</p>';
+    return;
+  }
+  for (const r of zichtbaar) {
     const tegel = document.createElement('button');
     tegel.type = 'button';
     tegel.className = 'tegel';
@@ -229,6 +372,20 @@ function toonRecepten() {
     naam.className = 'naam';
     naam.textContent = r.titel;
     tegel.append(beeld, naam);
+    const labels = labelsVan(r);
+    if (labels.length) {
+      const rij = document.createElement('div');
+      rij.className = 'tegellabels';
+      rij.textContent = labels.map((id) => (LABELS.find((l) => l.id === id) || { naam: id }).naam).join(' · ');
+      tegel.append(rij);
+    }
+    if (r.favoriet) {
+      const ster = document.createElement('span');
+      ster.className = 'ster';
+      ster.textContent = '★';
+      ster.setAttribute('aria-label', 'Favoriet');
+      tegel.append(ster);
+    }
     tegel.addEventListener('click', () => toonRecept(r));
     receptLijst.append(tegel);
   }
@@ -272,6 +429,7 @@ function toonRecept(r) {
   tekst.textContent = r.tekst || '';
   tekst.hidden = !r.tekst;
   document.getElementById('rBron').href = r.bron;
+  toonOrdening(r);
   receptDialoog.showModal();
   receptDialoog.scrollTop = 0;
 }
