@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1f3b2d">
+  <meta name="theme-color" content="#9fc9d6">
   <title>Keuken</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <header class="top">
@@ -24,7 +27,7 @@
   <main class="raster">
     <section class="kaart agenda">
       <div class="kop">
-        <h2>Agenda</h2>
+        <h2><span class="icoon blauw" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>Agenda</h2>
         <button id="agendaInstellen" class="knop klein" type="button" aria-label="Agenda instellen">Instellen</button>
       </div>
       <div id="agendaLijst">
@@ -34,9 +37,10 @@
 
     <section class="kaart recepten">
       <div class="kop">
-        <h2>Recepten</h2>
+        <h2><span class="icoon oranje" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16a8 8 0 0 1-16 0Z"/><path d="M9 7c0-1.5 1-2 1-3.5M14 7c0-1.5 1-2 1-3.5"/></svg></span>Recepten</h2>
       </div>
       <form id="receptForm" class="plakrij">
+        <span class="plus" aria-hidden="true">+</span>
         <input id="receptLink" type="url" placeholder="Plak hier een link naar een recept" autocomplete="off" required>
         <button class="knop hoofd" type="submit">Toevoegen</button>
       </form>
@@ -98,6 +102,6 @@
     </div>
   </dialog>
 
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="lucht" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fc9d6"/>
+      <stop offset="0.45" stop-color="#d9d6cf"/>
+      <stop offset="0.62" stop-color="#f3c1a4"/>
+      <stop offset="1" stop-color="#e9a58a"/>
+    </linearGradient>
+    <radialGradient id="zon" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffd2b4"/>
+      <stop offset="0.6" stop-color="#f7a988" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#f7a988" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9b8b6"/>
+      <stop offset="0.4" stop-color="#e8b29a"/>
+      <stop offset="1" stop-color="#5f7d80"/>
+    </linearGradient>
+    <linearGradient id="nevel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#f6e2d6" stop-opacity="0.55"/>
+    </linearGradient>
+    <g id="den">
+      <path d="M0 -120 L18 -78 L10 -78 L28 -40 L16 -40 L36 0 L-36 0 L-16 -40 L-28 -40 L-10 -78 L-18 -78 Z"/>
+      <rect x="-3" y="0" width="6" height="14"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#lucht)"/>
+  <circle cx="820" cy="560" r="210" fill="url(#zon)"/>
+
+  <!-- Verre bergen -->
+  <path d="M0 560 C 120 470, 220 360, 330 330 C 400 300, 430 190, 500 170 C 560 160, 590 260, 640 380 C 680 460, 760 540, 820 600 L0 640 Z" fill="#7fa9b4" opacity="0.75"/>
+  <path d="M860 600 C 940 520, 1010 400, 1080 330 C 1130 280, 1150 170, 1210 150 C 1270 140, 1290 260, 1340 320 C 1400 380, 1500 360, 1600 400 L1600 640 L860 640 Z" fill="#7aa6b3" opacity="0.75"/>
+  <rect y="430" width="1600" height="240" fill="url(#nevel)"/>
+
+  <!-- Dichtbije heuvels -->
+  <path d="M0 640 C 200 590, 380 610, 560 650 S 900 640, 1100 600 S 1450 590, 1600 610 L1600 760 L0 760 Z" fill="#4f8a8f"/>
+
+  <!-- Bomen achter -->
+  <g fill="#3f7c84" opacity="0.9">
+    <use href="#den" transform="translate(60 690) scale(1.3)"/>
+    <use href="#den" transform="translate(130 680) scale(1.6)"/>
+    <use href="#den" transform="translate(210 700) scale(1.2)"/>
+    <use href="#den" transform="translate(290 690) scale(1.5)"/>
+    <use href="#den" transform="translate(370 705) scale(1.1)"/>
+    <use href="#den" transform="translate(450 700) scale(1.4)"/>
+    <use href="#den" transform="translate(980 690) scale(1.3)"/>
+    <use href="#den" transform="translate(1060 680) scale(1.7)"/>
+    <use href="#den" transform="translate(1140 700) scale(1.2)"/>
+    <use href="#den" transform="translate(1220 690) scale(1.5)"/>
+    <use href="#den" transform="translate(1300 700) scale(1.3)"/>
+    <use href="#den" transform="translate(1380 685) scale(1.8)"/>
+    <use href="#den" transform="translate(1470 700) scale(1.4)"/>
+    <use href="#den" transform="translate(1550 690) scale(1.6)"/>
+  </g>
+  <!-- Bomen voor -->
+  <g fill="#2c6670">
+    <use href="#den" transform="translate(20 760) scale(2.2)"/>
+    <use href="#den" transform="translate(110 770) scale(1.8)"/>
+    <use href="#den" transform="translate(200 765) scale(2.4)"/>
+    <use href="#den" transform="translate(300 775) scale(1.7)"/>
+    <use href="#den" transform="translate(1180 770) scale(1.9)"/>
+    <use href="#den" transform="translate(1290 765) scale(2.5)"/>
+    <use href="#den" transform="translate(1400 775) scale(1.8)"/>
+    <use href="#den" transform="translate(1500 765) scale(2.3)"/>
+    <use href="#den" transform="translate(1590 775) scale(1.9)"/>
+  </g>
+
+  <!-- Rivier -->
+  <path d="M0 770 L1600 770 L1600 1000 L0 1000 Z" fill="url(#water)"/>
+  <path d="M0 770 L1600 770 L1600 790 L0 790 Z" fill="#2c6670" opacity="0.35"/>
+  <g fill="#ffffff" opacity="0.25">
+    <rect x="620" y="820" width="380" height="3" rx="1.5"/>
+    <rect x="700" y="850" width="240" height="3" rx="1.5"/>
+    <rect x="560" y="890" width="500" height="3" rx="1.5"/>
+  </g>
+  <g fill="#3d4f52" opacity="0.55">
+    <ellipse cx="320" cy="900" rx="40" ry="12"/>
+    <ellipse cx="420" cy="940" rx="28" ry="9"/>
+    <ellipse cx="1180" cy="910" rx="46" ry="13"/>
+    <ellipse cx="1290" cy="955" rx="30" ry="9"/>
+    <ellipse cx="860" cy="960" rx="22" ry="7"/>
+  </g>
+</svg>

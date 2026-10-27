@@ -1,20 +1,29 @@
 :root {
-  --achtergrond: #f4f1ea;
-  --kaart: #ffffff;
-  --tekst: #1d1d1b;
-  --zacht: #6b6a64;
-  --accent: #1f3b2d;
-  --rand: #e3ded3;
+  --paneel: rgb(255 255 255 / 0.38);
+  --rij: #ffffff;
+  --rij-zacht: rgb(255 255 255 / 0.7);
+  --tekst: #1f2328;
+  --zacht: #7a7f87;
+  --accent: #2f7cf6;
+  --accent-tekst: #ffffff;
+  --rand: rgb(0 0 0 / 0.06);
+  --schaduw: 0 1px 2px rgb(0 0 0 / 0.05), 0 8px 24px rgb(20 40 60 / 0.10);
+  --oranje: #f59e0b;
+  --paars: #a855f7;
+  --geel: #facc15;
+  --groen: #22c55e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --achtergrond: #141613;
-    --kaart: #1f221e;
-    --tekst: #f1efe8;
-    --zacht: #a3a199;
-    --accent: #9fd3b0;
-    --rand: #2e322c;
+    --paneel: rgb(24 27 31 / 0.55);
+    --rij: rgb(44 48 54 / 0.95);
+    --rij-zacht: rgb(44 48 54 / 0.7);
+    --tekst: #f1f3f5;
+    --zacht: #a3a8b0;
+    --accent: #5b9bff;
+    --rand: rgb(255 255 255 / 0.08);
+    --schaduw: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
   }
 }
 
@@ -23,219 +32,311 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: var(--achtergrond);
   color: var(--tekst);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  background: #9fc9d6 url("wallpaper.svg") center / cover no-repeat fixed;
 }
 
 body {
   display: flex;
   flex-direction: column;
   padding: 24px;
-  gap: 24px;
+  gap: 20px;
+  background: transparent;
 }
+
+@media (prefers-color-scheme: dark) {
+  body { background: rgb(10 14 20 / 0.35); }
+}
+
+/* ---------- Kop met klok ---------- */
 
 .top {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  color: #fff;
+  text-shadow: 0 2px 12px rgb(20 40 60 / 0.35);
 }
 
 .tijd {
-  font-size: clamp(56px, 9vw, 120px);
-  font-weight: 600;
+  font-size: clamp(56px, 9vw, 112px);
+  font-weight: 700;
   line-height: 1;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
 .datum {
-  font-size: clamp(20px, 2.4vw, 32px);
-  color: var(--zacht);
-  margin-top: 8px;
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 600;
+  margin-top: 6px;
+  opacity: 0.95;
 }
-
 .datum::first-letter { text-transform: uppercase; }
 
-.knoppen { display: flex; gap: 12px; align-items: center; }
+.top .status {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ---------- Knoppen ---------- */
+
+.knoppen { display: flex; gap: 10px; align-items: center; }
 
 .knop {
   font: inherit;
-  font-size: 18px;
-  padding: 12px 20px;
-  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 999px;
   border: 1px solid var(--rand);
-  background: var(--kaart);
+  background: var(--rij);
   color: var(--tekst);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+  cursor: pointer;
+  text-shadow: none;
+  transition: transform 0.1s ease, background 0.15s ease;
 }
+.knop:active { transform: scale(0.97); }
+.knop.klein { font-size: 14px; padding: 7px 14px; }
+.knop.hoofd { background: var(--accent); color: var(--accent-tekst); border-color: transparent; }
+.knop[disabled] { opacity: 0.6; }
 
-.status { color: var(--zacht); font-size: 16px; }
+/* ---------- Panelen ---------- */
 
 .raster {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 20px;
   min-height: 0;
 }
-
 @media (max-width: 800px) {
   .raster { grid-template-columns: 1fr; }
 }
 
 .kaart {
-  background: var(--kaart);
-  border: 1px solid var(--rand);
-  border-radius: 20px;
-  padding: 24px;
+  background: var(--paneel);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid rgb(255 255 255 / 0.5);
+  border-radius: 24px;
+  padding: 22px;
   overflow: auto;
+  box-shadow: var(--schaduw);
 }
-
-.kaart h2 {
-  margin: 0 0 16px;
-  font-size: 28px;
-  color: var(--accent);
-}
-
-.leeg { color: var(--zacht); font-size: 20px; }
 
 .kop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.kop h2 { margin: 0; }
-.knop.klein { font-size: 15px; padding: 8px 14px; }
-.knop.hoofd { background: var(--accent); color: var(--kaart); border-color: var(--accent); }
-
-.dag { margin-bottom: 20px; }
-.dag h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  color: var(--zacht);
-  font-weight: 600;
+.kop h2 {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--tekst);
 }
-.dag h3::first-letter { text-transform: uppercase; }
+.icoon {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: inline-grid; place-items: center; flex: none;
+  color: #fff;
+}
+.icoon svg { width: 17px; height: 17px; }
+.icoon.blauw { background: var(--accent); }
+.icoon.oranje { background: var(--oranje); }
+
+.leeg { color: var(--tekst); opacity: 0.75; font-size: 17px; margin: 4px 2px; }
+.melding { color: var(--zacht); font-size: 14px; margin: 8px 4px; }
+
+/* ---------- Agenda ---------- */
+
+.dag { margin-bottom: 18px; }
+.dag h3 {
+  margin: 0 0 8px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--zacht);
+}
+
 .afspraak {
   display: flex;
-  gap: 16px;
-  padding: 10px 0;
-  border-top: 1px solid var(--rand);
-  font-size: 20px;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background: var(--rij);
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  font-size: 18px;
+  line-height: 1.35;
+}
+.afspraak .stip {
+  width: 14px; height: 14px; border-radius: 50%;
+  margin-top: 5px; flex: none;
+  background: var(--zacht);
+  box-shadow: 0 0 0 4px rgb(0 0 0 / 0.04);
 }
 .afspraak .wanneer {
-  min-width: 110px;
-  color: var(--accent);
+  min-width: 92px;
+  color: var(--zacht);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 16px;
+  padding-top: 1px;
 }
-.afspraak .plek { display: block; font-size: 15px; color: var(--zacht); }
-.melding { color: var(--zacht); font-size: 15px; margin-top: 8px; }
+.afspraak .plek { display: block; font-size: 14px; color: var(--zacht); }
+
+/* ---------- Recepten ---------- */
+
+.plakrij {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 6px 6px 16px;
+  margin-bottom: 10px;
+  background: var(--rij);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+.plakrij .plus { color: var(--zacht); font-size: 22px; line-height: 1; flex: none; }
+.plakrij input {
+  flex: 1; min-width: 0;
+  font: inherit; font-size: 16px;
+  padding: 8px 4px;
+  border: none; outline: none;
+  background: transparent; color: var(--tekst);
+}
+.plakrij input::placeholder { color: var(--zacht); }
+
+.plakknop {
+  display: block;
+  margin: 0 0 18px;
+  background: var(--rij-zacht);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.receptlijst {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+}
+.receptlijst .leeg { grid-column: 1 / -1; }
+.tegel {
+  font: inherit; text-align: left; color: var(--tekst);
+  background: var(--rij);
+  border: none; border-radius: 20px;
+  padding: 0; overflow: hidden; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: flex-start;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 6px 16px rgb(20 40 60 / 0.08);
+  transition: transform 0.12s ease;
+}
+.tegel:active { transform: scale(0.98); }
+.tegel .beeld {
+  aspect-ratio: 4 / 3; width: 100%; object-fit: cover; display: block;
+  background: linear-gradient(135deg, #f6d7c6, #b9d6de);
+}
+.tegel .naam { padding: 10px 14px 14px; font-size: 16px; font-weight: 700; line-height: 1.25; }
+
+/* ---------- Dialogen ---------- */
 
 .dialoog {
-  border: 1px solid var(--rand);
-  border-radius: 20px;
-  background: var(--kaart);
+  border: none;
+  border-radius: 24px;
+  background: var(--rij);
   color: var(--tekst);
   padding: 24px;
   width: min(560px, 92vw);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.25);
 }
-.dialoog::backdrop { background: rgb(0 0 0 / 0.4); }
-.dialoog h3 { margin: 0 0 8px; font-size: 24px; }
+.dialoog::backdrop {
+  background: rgb(20 30 40 / 0.35);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.dialoog h3 { margin: 0 0 8px; font-size: 22px; font-weight: 800; }
 .dialoog input {
   width: 100%;
   font: inherit;
   font-size: 16px;
-  padding: 12px;
+  padding: 12px 16px;
   margin: 8px 0 16px;
-  border-radius: 10px;
+  border-radius: 999px;
   border: 1px solid var(--rand);
-  background: var(--achtergrond);
+  background: var(--rij-zacht);
   color: var(--tekst);
 }
 .dialoog .knoppen { justify-content: flex-end; }
-
-.afspraak .stip {
-  width: 10px; height: 10px; border-radius: 50%;
-  margin-top: 9px; flex: none;
-  background: var(--zacht);
-}
-
-.plakrij { display: flex; gap: 12px; margin-bottom: 16px; }
-.plakrij input {
-  flex: 1; min-width: 0;
-  font: inherit; font-size: 17px;
-  padding: 12px; border-radius: 12px;
-  border: 1px solid var(--rand);
-  background: var(--achtergrond); color: var(--tekst);
-}
-.plakrij .knop[disabled] { opacity: 0.6; }
-
-.receptlijst {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-}
-.tegel {
-  font: inherit; text-align: left; color: var(--tekst);
-  background: var(--achtergrond);
-  border: 1px solid var(--rand); border-radius: 16px;
-  padding: 0; overflow: hidden; cursor: pointer;
-}
-.tegel .beeld {
-  aspect-ratio: 4 / 3; width: 100%; object-fit: cover; display: block;
-  background: var(--rand);
-}
-.tegel .naam { padding: 10px 12px 12px; font-size: 17px; font-weight: 600; line-height: 1.25; }
 
 .dialoog.groot { width: min(1000px, 96vw); max-height: 94vh; padding: 0; }
 .recept { padding: 24px; }
 .receptkop { display: flex; justify-content: flex-end; margin-bottom: 12px; }
 .receptbeeld {
   width: 100%; max-height: 320px; object-fit: cover;
-  border-radius: 16px; display: block; margin-bottom: 16px;
+  border-radius: 20px; display: block; margin-bottom: 16px;
 }
-.recept h3 { font-size: 30px; margin: 0 0 6px; }
-.receptinfo { color: var(--zacht); font-size: 18px; margin: 0 0 20px; }
+.recept h3 { font-size: 28px; margin: 0 0 6px; }
+.receptinfo { color: var(--zacht); font-size: 17px; margin: 0 0 20px; }
 .receptinhoud { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; }
 @media (max-width: 800px) { .receptinhoud { grid-template-columns: 1fr; } }
-.recept h4 { font-size: 22px; color: var(--accent); margin: 0 0 12px; }
+.recept h4 { font-size: 20px; font-weight: 800; color: var(--accent); margin: 0 0 12px; }
+
 .ingredienten { list-style: none; margin: 0; padding: 0; }
 .ingredienten li {
-  border-top: 1px solid var(--rand);
-  padding: 12px 0; font-size: 19px;
+  background: var(--rij-zacht);
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  padding: 10px 14px; margin-bottom: 8px;
+  font-size: 18px;
 }
 .ingredienten label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
-.ingredienten input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+.dialoog .ingredienten input {
+  appearance: none; -webkit-appearance: none;
+  width: 22px; height: 22px; min-width: 22px; padding: 0; margin: 1px 0 0; flex: none;
+  background: transparent; border-radius: 50%; border: 2px solid var(--zacht);
+  display: grid; place-items: center; cursor: pointer;
+}
+.dialoog .ingredienten input:checked { background: var(--accent); border-color: var(--accent); }
+.dialoog .ingredienten input:checked::after {
+  content: ""; width: 6px; height: 11px; margin-top: -2px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
 .ingredienten input:checked + span { text-decoration: line-through; color: var(--zacht); }
+
 .stappen { list-style: none; counter-reset: stap; margin: 0; padding: 0; }
 .stappen li {
   counter-increment: stap;
-  display: flex; gap: 16px;
-  padding: 12px 0; border-top: 1px solid var(--rand);
-  font-size: 19px; line-height: 1.45;
+  display: flex; gap: 14px;
+  padding: 12px 14px; margin-bottom: 8px;
+  background: var(--rij-zacht);
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  font-size: 18px; line-height: 1.45;
 }
 .stappen li::before {
   content: counter(stap);
-  flex: none; width: 34px; height: 34px; border-radius: 50%;
-  background: var(--accent); color: var(--kaart);
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent); color: #fff;
   display: grid; place-items: center;
-  font-weight: 700; font-size: 17px;
+  font-weight: 800; font-size: 15px;
 }
 .recepttekst { white-space: pre-line; font-size: 18px; line-height: 1.5; }
 .receptvoet {
   display: flex; justify-content: space-between; align-items: center;
   margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--rand);
 }
-.receptvoet a { color: var(--accent); font-size: 17px; }
+.receptvoet a { color: var(--accent); font-size: 16px; font-weight: 700; }
 
-.tekstknop {
-  font: inherit; font-size: 15px;
-  background: none; border: none; padding: 0 0 16px;
-  color: var(--accent); text-decoration: underline; cursor: pointer;
-}
-.plakknop { display: block; margin: 0 0 16px; color: var(--accent); }
 .veld {
   width: 100%;
   font: inherit; font-size: 16px;
-  padding: 12px; margin-bottom: 12px;
-  border-radius: 12px; border: 1px solid var(--rand);
-  background: var(--achtergrond); color: var(--tekst);
+  padding: 12px 16px; margin-bottom: 12px;
+  border-radius: 18px; border: 1px solid var(--rand);
+  background: var(--rij-zacht); color: var(--tekst);
 }
+input.veld { border-radius: 999px; }
 textarea.veld { resize: vertical; min-height: 200px; }
 .dialoog .recept .knoppen { justify-content: flex-end; }
