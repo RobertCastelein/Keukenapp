@@ -287,6 +287,7 @@ async function voegReceptToe(link) {
   meld('Recept ophalen…');
   try {
     const data = await vraagScript('recept-toevoegen', { url: link });
+    if (!data.recept) throw new Error('je Google-script is nog de oude versie');
     recepten.unshift(data.recept);
     bewaar('receptenData', JSON.stringify(recepten));
     toonRecepten();
@@ -308,7 +309,9 @@ receptForm.addEventListener('submit', (e) => {
 async function laadRecepten() {
   if (!lees('agendaUrl')) return;
   try {
-    recepten = (await vraagScript('recepten')).recepten;
+    const data = await vraagScript('recepten');
+    if (!Array.isArray(data.recepten)) throw new Error('je Google-script is nog de oude versie');
+    recepten = data.recepten;
     bewaar('receptenData', JSON.stringify(recepten));
     toonRecepten();
   } catch (e) {
