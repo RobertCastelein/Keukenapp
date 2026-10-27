@@ -21,6 +21,24 @@ function doGet(e) {
   }
 }
 
+// Recepttekst die iemand zelf heeft geplakt (voor sites die het ophalen blokkeren).
+function doPost(e) {
+  try {
+    const p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (p.actie === 'recept-tekst') {
+      const tekst = String(p.tekst || '').slice(0, 50000);
+      if (!tekst.trim()) throw new Error('Er is geen tekst geplakt');
+      const titel = String(p.titel || '').trim() ||
+        tekst.split('\n').map((r) => r.trim()).find(Boolean).slice(0, 80);
+      const bron = /^https?:\/\//.test(p.bron || '') ? p.bron : '';
+      return json({ recept: bewaarNieuwRecept(receptUitTekst(tekst, { bron, titel, afbeelding: '' })) });
+    }
+    throw new Error('Onbekende actie');
+  } catch (fout) {
+    return json({ fout: fout.message });
+  }
+}
+
 function json(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
@@ -73,7 +91,10 @@ function bewaarRecepten(recepten) {
 
 function voegReceptToe(url) {
   if (!url || !/^https?:\/\//.test(url)) throw new Error('Dit is geen geldige link');
-  const recept = haalReceptOp(url);
+  return bewaarNieuwRecept(haalReceptOp(url));
+}
+
+function bewaarNieuwRecept(recept) {
   recept.id = Utilities.getUuid();
   recept.toegevoegd = new Date().toISOString();
   const lock = LockService.getScriptLock();
@@ -203,7 +224,8 @@ function receptUitTekst(tekst, basis) {
     const kaal = regel.replace(/^[^\p{L}\p{N}]+/u, '').toLowerCase();
     if (/^(ingredi[eë]nten|ingredients|wat heb je nodig|benodigdheden|nodig)\b/.test(kaal)) { deel = 'ing'; continue; }
     if (/^(bereiding(swijze)?|instructies|instructions|method|werkwijze|zo maak je het|stappen|directions)\b/.test(kaal)) { deel = 'stap'; continue; }
-    if (/^#/.test(regel)) continue;
+    if (/^(keukenspullen|bekijk ook|meer recepten|reacties|deel dit recept|bewaar recept)\b/.test(kaal)) { deel = null; continue; }
+    if (/^#/.test(regel) || /^\d+[.)]?$/.test(regel)) continue;
     const zonderOpsomming = regel.replace(/^(\d+[.)]\s+|[-•*▪️✔️✅🔸🔹]+\s*)/u, '').trim();
     if (deel === 'ing') ingredienten.push(zonderOpsomming);
     else if (deel === 'stap') stappen.push(zonderOpsomming);

@@ -184,6 +184,15 @@ function scriptUrl(actie, extra) {
   return u.toString();
 }
 
+async function stuurScript(gegevens) {
+  const basis = lees('agendaUrl');
+  if (!basis) throw new Error('Koppel eerst je Google-script via Agenda → Instellen');
+  // Geen Content-Type meegeven: dan is het een "eenvoudig" verzoek dat Google accepteert
+  const data = await (await fetch(basis, { method: 'POST', body: JSON.stringify(gegevens) })).json();
+  if (data.fout) throw new Error(data.fout);
+  return data;
+}
+
 async function vraagScript(actie, extra) {
   const url = scriptUrl(actie, extra);
   if (!url) throw new Error('Koppel eerst je Google-script via Agenda → Instellen');
@@ -288,18 +297,58 @@ async function voegReceptToe(link) {
   try {
     const data = await vraagScript('recept-toevoegen', { url: link });
     if (!data.recept) throw new Error('je Google-script is nog de oude versie');
-    recepten.unshift(data.recept);
-    bewaar('receptenData', JSON.stringify(recepten));
-    toonRecepten();
     receptLink.value = '';
     meld('');
-    toonRecept(data.recept);
+    nieuwRecept(data.recept);
   } catch (e) {
-    meld('Dat lukte niet: ' + e.message);
+    meld('Dat lukte niet: ' + e.message + '. Je kunt de tekst van het recept ook zelf plakken.');
+    openPlakDialoog(link);
   } finally {
     knop.disabled = false;
   }
 }
+
+function nieuwRecept(recept) {
+  recepten.unshift(recept);
+  bewaar('receptenData', JSON.stringify(recepten));
+  toonRecepten();
+  toonRecept(recept);
+}
+
+// Recepttekst zelf plakken, voor sites die het ophalen blokkeren
+const plakDialoog = document.getElementById('plakDialoog');
+const plakForm = document.getElementById('plakForm');
+
+function openPlakDialoog(bron) {
+  document.getElementById('plakBron').value = bron || '';
+  plakDialoog.showModal();
+}
+
+document.getElementById('zelfPlakken').addEventListener('click', () => openPlakDialoog(receptLink.value.trim()));
+document.getElementById('plakAnnuleer').addEventListener('click', () => plakDialoog.close());
+plakForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const knop = plakForm.querySelector('button[type=submit]');
+  knop.disabled = true;
+  try {
+    const data = await stuurScript({
+      actie: 'recept-tekst',
+      titel: document.getElementById('plakTitel').value.trim(),
+      tekst: document.getElementById('plakTekst').value,
+      bron: document.getElementById('plakBron').value,
+    });
+    if (!data.recept) throw new Error('je Google-script is nog de oude versie');
+    plakForm.reset();
+    plakDialoog.close();
+    receptLink.value = '';
+    meld('');
+    nieuwRecept(data.recept);
+  } catch (fout) {
+    alert('Opslaan lukte niet: ' + fout.message);
+  } finally {
+    knop.disabled = false;
+  }
+});
 
 receptForm.addEventListener('submit', (e) => {
   e.preventDefault();

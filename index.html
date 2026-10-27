@@ -41,6 +41,7 @@
         <button class="knop hoofd" type="submit">Toevoegen</button>
       </form>
       <p id="receptMelding" class="melding" hidden></p>
+      <button id="zelfPlakken" class="tekstknop" type="button">Lukt een link niet? Plak de recepttekst zelf</button>
       <div id="receptLijst" class="receptlijst"></div>
     </section>
   </main>
@@ -53,6 +54,20 @@
       <div class="knoppen">
         <button value="annuleer" class="knop" type="submit">Annuleren</button>
         <button value="opslaan" class="knop hoofd" type="submit">Opslaan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="plakDialoog" class="dialoog groot">
+    <form id="plakForm" class="recept" method="dialog">
+      <h3>Recept zelf plakken</h3>
+      <p class="receptinfo">Open het recept, selecteer alle tekst (Ctrl+A of lang drukken → Alles selecteren), kopieer die en plak hem hieronder. De app zoekt zelf de ingrediënten en de bereiding eruit.</p>
+      <input id="plakTitel" class="veld" type="text" placeholder="Naam van het recept (mag leeg)">
+      <textarea id="plakTekst" class="veld" rows="10" placeholder="Plak hier de tekst van het recept" required></textarea>
+      <input id="plakBron" type="hidden">
+      <div class="knoppen">
+        <button value="annuleer" class="knop" type="button" id="plakAnnuleer">Annuleren</button>
+        <button class="knop hoofd" type="submit">Opslaan</button>
       </div>
     </form>
   </dialog>
