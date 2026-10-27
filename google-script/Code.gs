@@ -33,6 +33,7 @@ function doPost(e) {
       const bron = /^https?:\/\//.test(p.bron || '') ? p.bron : '';
       return json({ recept: bewaarNieuwRecept(receptUitTekst(tekst, { bron, titel, afbeelding: '' })) });
     }
+    if (p.actie === 'recept-bijwerken') return json({ recept: werkReceptBij(p.id, p) });
     throw new Error('Onbekende actie');
   } catch (fout) {
     return json({ fout: fout.message });
@@ -107,6 +108,25 @@ function bewaarNieuwRecept(recept) {
     lock.releaseLock();
   }
   return recept;
+}
+
+// Favoriet en labels van een recept aanpassen.
+function werkReceptBij(id, wijziging) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const recepten = leesRecepten();
+    const recept = recepten.find((r) => r.id === id);
+    if (!recept) throw new Error('Recept niet gevonden');
+    if (typeof wijziging.favoriet === 'boolean') recept.favoriet = wijziging.favoriet;
+    if (Array.isArray(wijziging.labels)) {
+      recept.labels = wijziging.labels.map(String).filter(Boolean).slice(0, 20);
+    }
+    bewaarRecepten(recepten);
+    return recept;
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function verwijderRecept(id) {
