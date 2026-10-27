@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f3b2d">
+  <title>Keuken</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <div id="tijd" class="tijd">--:--</div>
+      <div id="datum" class="datum"></div>
+    </div>
+    <div class="knoppen">
+      <button id="volledig" class="knop" type="button">Schermvullend</button>
+      <span id="wakker" class="status" hidden>Scherm blijft aan</span>
+    </div>
+  </header>
+
+  <main class="raster">
+    <section class="kaart agenda">
+      <h2>Agenda</h2>
+      <p class="leeg">De gedeelde agenda wordt in stap 2 gekoppeld.</p>
+    </section>
+
+    <section class="kaart recepten">
+      <h2>Recepten</h2>
+      <p class="leeg">Hier komen jullie recepten. Link plakken en opslaan volgt in stap 3.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

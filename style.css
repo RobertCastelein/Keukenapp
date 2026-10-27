@@ -1,0 +1,99 @@
+:root {
+  --achtergrond: #f4f1ea;
+  --kaart: #ffffff;
+  --tekst: #1d1d1b;
+  --zacht: #6b6a64;
+  --accent: #1f3b2d;
+  --rand: #e3ded3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --achtergrond: #141613;
+    --kaart: #1f221e;
+    --tekst: #f1efe8;
+    --zacht: #a3a199;
+    --accent: #9fd3b0;
+    --rand: #2e322c;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--achtergrond);
+  color: var(--tekst);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 24px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.tijd {
+  font-size: clamp(56px, 9vw, 120px);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.datum {
+  font-size: clamp(20px, 2.4vw, 32px);
+  color: var(--zacht);
+  margin-top: 8px;
+}
+
+.datum::first-letter { text-transform: uppercase; }
+
+.knoppen { display: flex; gap: 12px; align-items: center; }
+
+.knop {
+  font: inherit;
+  font-size: 18px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--rand);
+  background: var(--kaart);
+  color: var(--tekst);
+}
+
+.status { color: var(--zacht); font-size: 16px; }
+
+.raster {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  min-height: 0;
+}
+
+@media (max-width: 800px) {
+  .raster { grid-template-columns: 1fr; }
+}
+
+.kaart {
+  background: var(--kaart);
+  border: 1px solid var(--rand);
+  border-radius: 20px;
+  padding: 24px;
+  overflow: auto;
+}
+
+.kaart h2 {
+  margin: 0 0 16px;
+  font-size: 28px;
+  color: var(--accent);
+}
+
+.leeg { color: var(--zacht); font-size: 20px; }
