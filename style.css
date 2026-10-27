@@ -97,3 +97,55 @@ body {
 }
 
 .leeg { color: var(--zacht); font-size: 20px; }
+
+.kop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.kop h2 { margin: 0; }
+.knop.klein { font-size: 15px; padding: 8px 14px; }
+.knop.hoofd { background: var(--accent); color: var(--kaart); border-color: var(--accent); }
+
+.dag { margin-bottom: 20px; }
+.dag h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: var(--zacht);
+  font-weight: 600;
+}
+.dag h3::first-letter { text-transform: uppercase; }
+.afspraak {
+  display: flex;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rand);
+  font-size: 20px;
+}
+.afspraak .wanneer {
+  min-width: 110px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.afspraak .plek { display: block; font-size: 15px; color: var(--zacht); }
+.melding { color: var(--zacht); font-size: 15px; margin-top: 8px; }
+
+.dialoog {
+  border: 1px solid var(--rand);
+  border-radius: 20px;
+  background: var(--kaart);
+  color: var(--tekst);
+  padding: 24px;
+  width: min(560px, 92vw);
+}
+.dialoog::backdrop { background: rgb(0 0 0 / 0.4); }
+.dialoog h3 { margin: 0 0 8px; font-size: 24px; }
+.dialoog input {
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  padding: 12px;
+  margin: 8px 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--rand);
+  background: var(--achtergrond);
+  color: var(--tekst);
+}
+.dialoog .knoppen { justify-content: flex-end; }

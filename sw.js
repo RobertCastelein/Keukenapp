@@ -1,5 +1,5 @@
 // Bewaart de app-bestanden zodat het startscherm ook laadt als de wifi even weg is.
-const CACHE = 'keuken-v1';
+const CACHE = 'keuken-v2';
 const BESTANDEN = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -16,7 +16,8 @@ self.addEventListener('activate', (e) => {
 
 // Eerst het netwerk proberen (zodat updates direct zichtbaar zijn), anders de bewaarde versie.
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
+  // Alleen de eigen app-bestanden; de agenda en recepten komen altijd vers van internet.
+  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
     fetch(e.request)
       .then((antwoord) => {

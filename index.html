@@ -23,8 +23,13 @@
 
   <main class="raster">
     <section class="kaart agenda">
-      <h2>Agenda</h2>
-      <p class="leeg">De gedeelde agenda wordt in stap 2 gekoppeld.</p>
+      <div class="kop">
+        <h2>Agenda</h2>
+        <button id="agendaInstellen" class="knop klein" type="button" aria-label="Agenda instellen">Instellen</button>
+      </div>
+      <div id="agendaLijst">
+        <p class="leeg">Nog geen agenda gekoppeld. Tik op Instellen.</p>
+      </div>
     </section>
 
     <section class="kaart recepten">
@@ -32,6 +37,18 @@
       <p class="leeg">Hier komen jullie recepten. Link plakken en opslaan volgt in stap 3.</p>
     </section>
   </main>
+
+  <dialog id="agendaDialoog" class="dialoog">
+    <form method="dialog">
+      <h3>Agenda koppelen</h3>
+      <p>Plak hier de web-app-link van je Google-script.</p>
+      <input id="agendaUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+      <div class="knoppen">
+        <button value="annuleer" class="knop" type="submit">Annuleren</button>
+        <button value="opslaan" class="knop hoofd" type="submit">Opslaan</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="app.js"></script>
 </body>
