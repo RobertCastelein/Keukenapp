@@ -33,21 +33,54 @@
     </section>
 
     <section class="kaart recepten">
-      <h2>Recepten</h2>
-      <p class="leeg">Hier komen jullie recepten. Link plakken en opslaan volgt in stap 3.</p>
+      <div class="kop">
+        <h2>Recepten</h2>
+      </div>
+      <form id="receptForm" class="plakrij">
+        <input id="receptLink" type="url" placeholder="Plak hier een link naar een recept" autocomplete="off" required>
+        <button class="knop hoofd" type="submit">Toevoegen</button>
+      </form>
+      <p id="receptMelding" class="melding" hidden></p>
+      <div id="receptLijst" class="receptlijst"></div>
     </section>
   </main>
 
   <dialog id="agendaDialoog" class="dialoog">
     <form method="dialog">
-      <h3>Agenda koppelen</h3>
-      <p>Plak hier de web-app-link van je Google-script.</p>
+      <h3>Koppeling met Google</h3>
+      <p>Plak hier de web-app-link van je Google-script. Die wordt gebruikt voor de agenda én de recepten.</p>
       <input id="agendaUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
       <div class="knoppen">
         <button value="annuleer" class="knop" type="submit">Annuleren</button>
         <button value="opslaan" class="knop hoofd" type="submit">Opslaan</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="receptDialoog" class="dialoog groot">
+    <div class="recept">
+      <div class="receptkop">
+        <button id="receptSluit" class="knop" type="button">Sluiten</button>
+      </div>
+      <img id="rAfbeelding" class="receptbeeld" alt="" hidden>
+      <h3 id="rTitel"></h3>
+      <p id="rInfo" class="receptinfo"></p>
+      <div class="receptinhoud">
+        <section id="rIngredientenBlok">
+          <h4>Ingrediënten</h4>
+          <ul id="rIngredienten" class="ingredienten"></ul>
+        </section>
+        <section id="rStappenBlok">
+          <h4>Bereiding</h4>
+          <ol id="rStappen" class="stappen"></ol>
+        </section>
+      </div>
+      <p id="rTekst" class="recepttekst" hidden></p>
+      <div class="receptvoet">
+        <a id="rBron" target="_blank" rel="noopener">Bekijk origineel</a>
+        <button id="rVerwijder" class="knop" type="button">Verwijderen</button>
+      </div>
+    </div>
   </dialog>
 
   <script src="app.js"></script>

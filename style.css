@@ -149,3 +149,77 @@ body {
   color: var(--tekst);
 }
 .dialoog .knoppen { justify-content: flex-end; }
+
+.afspraak .stip {
+  width: 10px; height: 10px; border-radius: 50%;
+  margin-top: 9px; flex: none;
+  background: var(--zacht);
+}
+
+.plakrij { display: flex; gap: 12px; margin-bottom: 16px; }
+.plakrij input {
+  flex: 1; min-width: 0;
+  font: inherit; font-size: 17px;
+  padding: 12px; border-radius: 12px;
+  border: 1px solid var(--rand);
+  background: var(--achtergrond); color: var(--tekst);
+}
+.plakrij .knop[disabled] { opacity: 0.6; }
+
+.receptlijst {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+.tegel {
+  font: inherit; text-align: left; color: var(--tekst);
+  background: var(--achtergrond);
+  border: 1px solid var(--rand); border-radius: 16px;
+  padding: 0; overflow: hidden; cursor: pointer;
+}
+.tegel .beeld {
+  aspect-ratio: 4 / 3; width: 100%; object-fit: cover; display: block;
+  background: var(--rand);
+}
+.tegel .naam { padding: 10px 12px 12px; font-size: 17px; font-weight: 600; line-height: 1.25; }
+
+.dialoog.groot { width: min(1000px, 96vw); max-height: 94vh; padding: 0; }
+.recept { padding: 24px; }
+.receptkop { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.receptbeeld {
+  width: 100%; max-height: 320px; object-fit: cover;
+  border-radius: 16px; display: block; margin-bottom: 16px;
+}
+.recept h3 { font-size: 30px; margin: 0 0 6px; }
+.receptinfo { color: var(--zacht); font-size: 18px; margin: 0 0 20px; }
+.receptinhoud { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; }
+@media (max-width: 800px) { .receptinhoud { grid-template-columns: 1fr; } }
+.recept h4 { font-size: 22px; color: var(--accent); margin: 0 0 12px; }
+.ingredienten { list-style: none; margin: 0; padding: 0; }
+.ingredienten li {
+  border-top: 1px solid var(--rand);
+  padding: 12px 0; font-size: 19px;
+}
+.ingredienten label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.ingredienten input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+.ingredienten input:checked + span { text-decoration: line-through; color: var(--zacht); }
+.stappen { list-style: none; counter-reset: stap; margin: 0; padding: 0; }
+.stappen li {
+  counter-increment: stap;
+  display: flex; gap: 16px;
+  padding: 12px 0; border-top: 1px solid var(--rand);
+  font-size: 19px; line-height: 1.45;
+}
+.stappen li::before {
+  content: counter(stap);
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent); color: var(--kaart);
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 17px;
+}
+.recepttekst { white-space: pre-line; font-size: 18px; line-height: 1.5; }
+.receptvoet {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--rand);
+}
+.receptvoet a { color: var(--accent); font-size: 17px; }

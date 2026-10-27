@@ -57,6 +57,9 @@ function bewaar(sleutel, waarde) {
   try { localStorage.setItem(sleutel, waarde); } catch (e) { /* geen opslag */ }
 }
 
+// Dezelfde kleuren als in Google Agenda
+const agendaKleuren = { 'Thuis': '#e67c73', 'Robert Castelein': '#7986cb', 'Verjaardagen': '#33b679' };
+
 function dagSleutel(d) {
   return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
 }
@@ -114,7 +117,11 @@ function toonAfspraken(afspraken, melding) {
         plek.textContent = a.plek;
         wat.append(plek);
       }
-      rij.append(wanneer, wat);
+      const stip = document.createElement('span');
+      stip.className = 'stip';
+      if (agendaKleuren[a.agenda]) stip.style.background = agendaKleuren[a.agenda];
+      stip.title = a.agenda || '';
+      rij.append(stip, wanneer, wat);
       blok.append(rij);
     }
     agendaLijst.append(blok);
@@ -151,12 +158,179 @@ agendaDialoog.addEventListener('close', () => {
   if (agendaDialoog.returnValue !== 'opslaan') return;
   bewaar('agendaUrl', agendaUrlVeld.value.trim());
   laadAgenda();
+  laadRecepten();
 });
 
 const bewaard = lees('agendaData');
 if (bewaard) toonAfspraken(JSON.parse(bewaard));
 laadAgenda();
 setInterval(laadAgenda, 5 * 60 * 1000);
+
+// Recepten: worden via het Google-script opgehaald en in je Google Drive bewaard
+const receptForm = document.getElementById('receptForm');
+const receptLink = document.getElementById('receptLink');
+const receptMelding = document.getElementById('receptMelding');
+const receptLijst = document.getElementById('receptLijst');
+const receptDialoog = document.getElementById('receptDialoog');
+let recepten = [];
+let openRecept = null;
+
+function scriptUrl(actie, extra) {
+  const basis = lees('agendaUrl');
+  if (!basis) return null;
+  const u = new URL(basis);
+  u.searchParams.set('actie', actie);
+  for (const [k, v] of Object.entries(extra || {})) u.searchParams.set(k, v);
+  return u.toString();
+}
+
+async function vraagScript(actie, extra) {
+  const url = scriptUrl(actie, extra);
+  if (!url) throw new Error('Koppel eerst je Google-script via Agenda → Instellen');
+  const data = await (await fetch(url)).json();
+  if (data.fout) throw new Error(data.fout);
+  return data;
+}
+
+function meld(tekst) {
+  receptMelding.textContent = tekst || '';
+  receptMelding.hidden = !tekst;
+}
+
+function toonRecepten() {
+  receptLijst.replaceChildren();
+  if (recepten.length === 0) {
+    receptLijst.innerHTML = '<p class="leeg">Nog geen recepten. Plak hierboven een link van Instagram of een receptsite.</p>';
+    return;
+  }
+  for (const r of recepten) {
+    const tegel = document.createElement('button');
+    tegel.type = 'button';
+    tegel.className = 'tegel';
+    const beeld = document.createElement(r.afbeelding ? 'img' : 'div');
+    beeld.className = 'beeld';
+    if (r.afbeelding) {
+      beeld.src = r.afbeelding;
+      beeld.alt = '';
+      beeld.loading = 'lazy';
+      beeld.referrerPolicy = 'no-referrer';
+      beeld.onerror = () => beeld.removeAttribute('src');
+    }
+    const naam = document.createElement('div');
+    naam.className = 'naam';
+    naam.textContent = r.titel;
+    tegel.append(beeld, naam);
+    tegel.addEventListener('click', () => toonRecept(r));
+    receptLijst.append(tegel);
+  }
+}
+
+function vulLijst(el, items, metVinkjes) {
+  el.replaceChildren();
+  for (const tekst of items) {
+    const li = document.createElement('li');
+    if (metVinkjes) {
+      const label = document.createElement('label');
+      const vink = document.createElement('input');
+      vink.type = 'checkbox';
+      const span = document.createElement('span');
+      span.textContent = tekst;
+      label.append(vink, span);
+      li.append(label);
+    } else {
+      const span = document.createElement('span');
+      span.textContent = tekst;
+      li.append(span);
+    }
+    el.append(li);
+  }
+}
+
+function toonRecept(r) {
+  openRecept = r;
+  const img = document.getElementById('rAfbeelding');
+  img.hidden = !r.afbeelding;
+  img.referrerPolicy = 'no-referrer';
+  if (r.afbeelding) img.src = r.afbeelding;
+  img.onerror = () => { img.hidden = true; };
+  document.getElementById('rTitel').textContent = r.titel;
+  document.getElementById('rInfo').textContent = [r.personen, r.tijd].filter(Boolean).join(' · ');
+  vulLijst(document.getElementById('rIngredienten'), r.ingredienten || [], true);
+  vulLijst(document.getElementById('rStappen'), r.stappen || [], false);
+  document.getElementById('rIngredientenBlok').hidden = !(r.ingredienten || []).length;
+  document.getElementById('rStappenBlok').hidden = !(r.stappen || []).length;
+  const tekst = document.getElementById('rTekst');
+  tekst.textContent = r.tekst || '';
+  tekst.hidden = !r.tekst;
+  document.getElementById('rBron').href = r.bron;
+  receptDialoog.showModal();
+  receptDialoog.scrollTop = 0;
+}
+
+document.getElementById('receptSluit').addEventListener('click', () => receptDialoog.close());
+document.getElementById('rVerwijder').addEventListener('click', async () => {
+  if (!openRecept || !confirm('"' + openRecept.titel + '" verwijderen?')) return;
+  try {
+    const data = await vraagScript('recept-verwijderen', { id: openRecept.id });
+    recepten = data.recepten;
+    bewaar('receptenData', JSON.stringify(recepten));
+    toonRecepten();
+    receptDialoog.close();
+  } catch (e) {
+    alert('Verwijderen lukte niet: ' + e.message);
+  }
+});
+
+async function voegReceptToe(link) {
+  const knop = receptForm.querySelector('button');
+  knop.disabled = true;
+  meld('Recept ophalen…');
+  try {
+    const data = await vraagScript('recept-toevoegen', { url: link });
+    recepten.unshift(data.recept);
+    bewaar('receptenData', JSON.stringify(recepten));
+    toonRecepten();
+    receptLink.value = '';
+    meld('');
+    toonRecept(data.recept);
+  } catch (e) {
+    meld('Dat lukte niet: ' + e.message);
+  } finally {
+    knop.disabled = false;
+  }
+}
+
+receptForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  voegReceptToe(receptLink.value.trim());
+});
+
+async function laadRecepten() {
+  if (!lees('agendaUrl')) return;
+  try {
+    recepten = (await vraagScript('recepten')).recepten;
+    bewaar('receptenData', JSON.stringify(recepten));
+    toonRecepten();
+  } catch (e) {
+    meld('Recepten konden niet worden bijgewerkt: ' + e.message);
+  }
+}
+
+try { recepten = JSON.parse(lees('receptenData') || '[]'); } catch (e) { recepten = []; }
+toonRecepten();
+laadRecepten();
+setInterval(laadRecepten, 15 * 60 * 1000);
+
+// Gedeeld vanuit een andere app (bijv. Instagram → Delen → Keuken)
+const gedeeld = new URLSearchParams(location.search);
+const gedeeldeLink = ['link', 'tekst', 'titel']
+  .map((k) => (gedeeld.get(k) || '').match(/https?:\/\/\S+/))
+  .find(Boolean);
+if (gedeeldeLink) {
+  history.replaceState(null, '', location.pathname);
+  receptLink.value = gedeeldeLink[0];
+  voegReceptToe(gedeeldeLink[0]);
+}
 
 // Offline werken en installeren als app
 if ('serviceWorker' in navigator) {
