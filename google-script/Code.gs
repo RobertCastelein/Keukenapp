@@ -279,3 +279,11 @@ function htmlNaarTekst(t) {
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&');
 }
+
+// Eenmalig uitvoeren vanuit de editor om Google om alle toestemmingen te laten vragen.
+function toestemming() {
+  ScriptApp.requireAllScopes(ScriptApp.AuthMode.FULL);
+  UrlFetchApp.fetch('https://www.google.com');
+  receptenBestand();
+  Logger.log('Alles in orde!');
+}
