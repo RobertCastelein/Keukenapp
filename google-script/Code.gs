@@ -28,9 +28,9 @@ function doPost(e) {
     if (p.actie === 'recept-tekst') {
       const tekst = String(p.tekst || '').slice(0, 50000);
       if (!tekst.trim()) throw new Error('Er is geen tekst geplakt');
-      const titel = String(p.titel || '').trim() ||
-        tekst.split('\n').map((r) => r.trim()).find(Boolean).slice(0, 80);
       const bron = /^https?:\/\//.test(p.bron || '') ? p.bron : '';
+      const titel = String(p.titel || '').trim() || titelUitLink(bron) ||
+        tekst.split('\n').map((r) => r.trim()).find(Boolean).slice(0, 80);
       return json({ recept: bewaarNieuwRecept(receptUitTekst(tekst, { bron, titel, afbeelding: '' })) });
     }
     if (p.actie === 'recept-bijwerken') return json({ recept: werkReceptBij(p.id, p) });
@@ -260,25 +260,78 @@ function receptUitInstagram(html, url) {
 
 // Zoekt in losse tekst (zoals een Instagram-bijschrift) naar ingrediënten en stappen.
 function receptUitTekst(tekst, basis) {
-  const regels = tekst.split(/\n+/).map((r) => r.trim()).filter(Boolean);
-  const ingredienten = [];
-  const stappen = [];
+  const regels = zonderDubbeleRegels(tekst.split(/\n+/).map((r) => r.trim()).filter(Boolean));
+  let ingredienten = [];
+  let stappen = [];
   let deel = null;
+  let kopGevonden = false;
+  let personen = '';
   for (const regel of regels) {
+    if (/^\d+\s*(personen|persoon|porties|portie)$/i.test(regel)) { personen = personen || regel; continue; }
     const kaal = regel.replace(/^[^\p{L}\p{N}]+/u, '').toLowerCase();
-    if (/^(ingredi[eë]nten|ingredients|wat heb je nodig|benodigdheden|nodig)\b/.test(kaal)) { deel = 'ing'; continue; }
-    if (/^(bereiding(swijze)?|instructies|instructions|method|werkwijze|zo maak je het|stappen|directions)\b/.test(kaal)) { deel = 'stap'; continue; }
-    if (/^(keukenspullen|bekijk ook|meer recepten|reacties|deel dit recept|bewaar recept)\b/.test(kaal)) { deel = null; continue; }
+    if (/^(ingredi[eë]nten|ingredients|wat heb je nodig|benodigdheden|nodig)(\s|:|$)/.test(kaal)) { deel = 'ing'; kopGevonden = true; continue; }
+    if (/^(bereiding(swijze)?|instructies|instructions|method|werkwijze|zo maak je het|stappen|directions)(\s|:|$)/.test(kaal)) { deel = 'stap'; kopGevonden = true; continue; }
+    if (/^(keukenspullen|bekijk ook|meer recepten|reacties|deel dit recept|bewaar recept)(\s|:|$)/.test(kaal)) { deel = null; continue; }
     if (/^#/.test(regel) || /^\d+[.)]?$/.test(regel)) continue;
     const zonderOpsomming = regel.replace(/^(\d+[.)]\s+|[-•*▪️✔️✅🔸🔹]+\s*)/u, '').trim();
     if (deel === 'ing') ingredienten.push(zonderOpsomming);
     else if (deel === 'stap') stappen.push(zonderOpsomming);
   }
-  return Object.assign({ personen: '', tijd: '' }, basis, {
+
+  // Geen kopjes gevonden: raden aan de vorm van de regels.
+  if (!kopGevonden) {
+    for (const regel of regels) {
+      if (/^#/.test(regel) || /^\d+[.)]?$/.test(regel) || regel === personen) continue;
+      const zonderOpsomming = regel.replace(/^(\d+[.)]\s+|[-•*▪️✔️✅🔸🔹]+\s*)/u, '').trim();
+      if (lijktOpStap(regel)) stappen.push(zonderOpsomming);
+      else if (lijktOpIngredient(regel) || (ingredienten.length && !stappen.length && regel.length < 40)) {
+        ingredienten.push(zonderOpsomming);
+      }
+    }
+  }
+
+  return Object.assign({ personen, tijd: '' }, basis, {
     ingredienten,
     stappen,
     tekst: ingredienten.length || stappen.length ? '' : tekst.trim(),
   });
+}
+
+// Sites als AH tonen elk ingrediënt drie keer: "800 gram gnocchi", "800 g", "gnocchi".
+// Losse stukjes die al in de regel ervoor staan, laten we weg.
+function zonderDubbeleRegels(regels) {
+  const norm = (t) => t.toLowerCase().replace(/\s+/g, ' ');
+  const uit = [];
+  for (let i = 0; i < regels.length; i++) {
+    const r = regels[i];
+    const vorige = uit[uit.length - 1];
+    if (vorige && r.length < vorige.length && norm(vorige).endsWith(norm(r))) continue;
+    const hoeveelheid = /^[\d½¼¾⅓⅔.,/\s-]+\s*[\p{L}.]{0,10}$/u.test(r);
+    const volgende = regels[i + 1];
+    if (vorige && hoeveelheid && volgende && volgende.length < vorige.length && norm(vorige).endsWith(norm(volgende))) continue;
+    uit.push(r);
+  }
+  return uit;
+}
+
+function lijktOpStap(regel) {
+  return regel.length >= 60 || (regel.length >= 25 && /[.!]$/.test(regel));
+}
+
+function lijktOpIngredient(regel) {
+  if (regel.length > 70) return false;
+  return /^[-•*]?\s*[\d½¼¾⅓⅔]/.test(regel) ||
+    /\b(gram|g|kg|ml|l|liter|el|tl|eetlepels?|theelepels?|snufje|teen|tenen|stuks?|blik|pot|zakje|bos|takjes?|cup|tbsp|tsp)\b/i.test(regel);
+}
+
+// "https://www.ah.nl/allerhande/recept/R-R1195575/traybake-met-gnocchi" -> "Traybake met gnocchi"
+function titelUitLink(url) {
+  const m = String(url || '').match(/^https?:\/\/[^/]+\/(.*)$/);
+  if (!m) return '';
+  const delen = m[1].split(/[?#]/)[0].split('/').filter(Boolean);
+  const laatste = delen.reverse().find((d) => /[a-z]{3,}-[a-z]/i.test(d)) || '';
+  const t = decodeURIComponent(laatste).replace(/\.\w+$/, '').replace(/[-_]+/g, ' ').trim();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
 }
 
 function zoekRecept(data) {
