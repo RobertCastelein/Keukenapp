@@ -1,6 +1,6 @@
 // Bewaart de app-bestanden zodat het startscherm ook laadt als de wifi even weg is.
-const CACHE = 'keuken-v8';
-const BESTANDEN = ['./', 'index.html', 'style.css?v=7', 'app.js?v=7', 'wallpaper.svg', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
+const CACHE = 'keuken-v9';
+const BESTANDEN = ['./', 'index.html', 'style.css?v=8', 'app.js?v=8', 'wallpaper.svg', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(BESTANDEN)));
