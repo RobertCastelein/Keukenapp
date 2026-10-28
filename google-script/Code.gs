@@ -34,6 +34,7 @@ function doPost(e) {
       return json({ recept: bewaarNieuwRecept(receptUitTekst(tekst, { bron, titel, afbeelding: '' })) });
     }
     if (p.actie === 'recept-bijwerken') return json({ recept: werkReceptBij(p.id, p) });
+    if (p.actie === 'afspraak-toevoegen') return json({ afspraak: voegAfspraakToe(p) });
     throw new Error('Onbekende actie');
   } catch (fout) {
     return json({ fout: fout.message });
@@ -72,6 +73,29 @@ function agenda() {
     throw new Error('Agenda "' + nietGevonden.join('", "') + '" niet gevonden');
   }
   return { afspraken };
+}
+
+// Nieuwe afspraak vanaf de tablet. Alleen in de agenda's uit AGENDAS.
+function voegAfspraakToe(p) {
+  const titel = String(p.titel || '').trim().slice(0, 200);
+  if (!titel) throw new Error('Geef de afspraak een naam');
+  const naam = AGENDAS.indexOf(p.agenda) !== -1 ? p.agenda : AGENDAS[0];
+  const agenda = CalendarApp.getCalendarsByName(naam)[0];
+  if (!agenda) throw new Error('Agenda "' + naam + '" niet gevonden');
+  const opties = p.plek ? { location: String(p.plek).slice(0, 200) } : {};
+
+  let e;
+  if (p.heleDag) {
+    const dag = Utilities.parseDate(String(p.datum), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    e = agenda.createAllDayEvent(titel, dag, opties);
+  } else {
+    const start = new Date(p.start);
+    const eind = new Date(p.eind);
+    if (isNaN(start) || isNaN(eind)) throw new Error('Ongeldige tijd');
+    if (eind <= start) throw new Error('De eindtijd moet na de begintijd liggen');
+    e = agenda.createEvent(titel, start, eind, opties);
+  }
+  return { titel: e.getTitle(), agenda: naam };
 }
 
 // ---------- Recepten: opslag ----------

@@ -378,3 +378,12 @@ body {
 input.veld { border-radius: 999px; }
 textarea.veld { resize: vertical; min-height: 200px; }
 .dialoog .recept .knoppen { justify-content: flex-end; }
+
+/* ---------- Nieuwe afspraak ---------- */
+.vinkregel, .selectregel { display: flex; align-items: center; gap: 10px; font-size: 16px; margin: 0 0 12px; }
+.vinkregel input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.selectregel .veld { margin: 0; flex: 1; }
+.tijden { display: flex; gap: 12px; }
+.tijden label { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.tijden .veld { margin: 0 0 12px; }
+.tijden[hidden] { display: none; }

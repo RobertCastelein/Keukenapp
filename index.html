@@ -28,7 +28,10 @@
     <section class="kaart agenda">
       <div class="kop">
         <h2><span class="icoon blauw" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>Agenda</h2>
-        <button id="agendaInstellen" class="knop klein" type="button" aria-label="Agenda instellen">Instellen</button>
+        <div class="knoppen">
+          <button id="afspraakNieuw" class="knop klein hoofd" type="button">+ Afspraak</button>
+          <button id="agendaInstellen" class="knop klein" type="button" aria-label="Agenda instellen">Instellen</button>
+        </div>
       </div>
       <div id="agendaLijst">
         <p class="leeg">Nog geen agenda gekoppeld. Tik op Instellen.</p>
@@ -62,6 +65,30 @@
       <div class="knoppen">
         <button value="annuleer" class="knop" type="submit">Annuleren</button>
         <button value="opslaan" class="knop hoofd" type="submit">Opslaan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="afspraakDialoog" class="dialoog">
+    <form id="afspraakForm">
+      <h3>Nieuwe afspraak</h3>
+      <input id="aTitel" class="veld" type="text" placeholder="Wat? Bijvoorbeeld: Etentje bij oma" required>
+      <input id="aDatum" class="veld" type="date" required>
+      <label class="vinkregel"><input id="aHeleDag" type="checkbox"> Hele dag</label>
+      <div id="aTijden" class="tijden">
+        <label>Van <input id="aStart" class="veld" type="time" value="18:00"></label>
+        <label>Tot <input id="aEind" class="veld" type="time" value="19:00"></label>
+      </div>
+      <input id="aPlek" class="veld" type="text" placeholder="Waar? (mag leeg)">
+      <label class="selectregel">In agenda
+        <select id="aAgenda" class="veld">
+          <option>Thuis</option>
+          <option>Robert Castelein</option>
+        </select>
+      </label>
+      <div class="knoppen">
+        <button id="afspraakAnnuleer" class="knop" type="button">Annuleren</button>
+        <button class="knop hoofd" type="submit">Opslaan</button>
       </div>
     </form>
   </dialog>

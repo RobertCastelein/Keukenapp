@@ -542,6 +542,60 @@ if (gedeeldeLink) {
   voegReceptToe(gedeeldeLink[0]);
 }
 
+// Nieuwe afspraak toevoegen vanaf de tablet
+const afspraakDialoog = document.getElementById('afspraakDialoog');
+const afspraakForm = document.getElementById('afspraakForm');
+const aHeleDag = document.getElementById('aHeleDag');
+
+function datumVeld(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+aHeleDag.addEventListener('change', () => {
+  document.getElementById('aTijden').hidden = aHeleDag.checked;
+});
+document.getElementById('aStart').addEventListener('change', (e) => {
+  // Eindtijd automatisch een uur later
+  const [u, m] = e.target.value.split(':').map(Number);
+  if (isNaN(u)) return;
+  document.getElementById('aEind').value = String(Math.min(u + 1, 23)).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+});
+document.getElementById('afspraakNieuw').addEventListener('click', () => {
+  afspraakForm.reset();
+  document.getElementById('aDatum').value = datumVeld(new Date());
+  document.getElementById('aTijden').hidden = false;
+  afspraakDialoog.showModal();
+});
+document.getElementById('afspraakAnnuleer').addEventListener('click', () => afspraakDialoog.close());
+afspraakForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const knop = afspraakForm.querySelector('button[type=submit]');
+  const datum = document.getElementById('aDatum').value;
+  const gegevens = {
+    actie: 'afspraak-toevoegen',
+    titel: document.getElementById('aTitel').value.trim(),
+    plek: document.getElementById('aPlek').value.trim(),
+    agenda: document.getElementById('aAgenda').value,
+    heleDag: aHeleDag.checked,
+    datum,
+  };
+  if (!gegevens.heleDag) {
+    gegevens.start = new Date(datum + 'T' + document.getElementById('aStart').value).toISOString();
+    gegevens.eind = new Date(datum + 'T' + document.getElementById('aEind').value).toISOString();
+  }
+  knop.disabled = true;
+  try {
+    const data = await stuurScript(gegevens);
+    if (!data.afspraak) throw new Error('je Google-script is nog de oude versie');
+    afspraakDialoog.close();
+    laadAgenda();
+  } catch (fout) {
+    alert('Opslaan lukte niet: ' + fout.message);
+  } finally {
+    knop.disabled = false;
+  }
+});
+
 // Offline werken en installeren als app
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
